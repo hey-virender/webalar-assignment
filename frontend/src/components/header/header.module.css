@@ -1,0 +1,30 @@
+.header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.avatarContainer{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.avatar{
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #f14f4f;
+}
+
+.logoutButton{
+  color:red;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+

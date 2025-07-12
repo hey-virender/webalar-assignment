@@ -1,0 +1,81 @@
+.card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1.5px 4px rgba(0, 0, 0, 0.04);
+  padding: 2rem;
+  margin: 1rem 0;
+  transition: box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  max-width: 420px;
+  min-width: 300px;
+}
+
+.card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+  color: #222;
+}
+
+.status {
+  padding: 0.3em 1em;
+  border-radius: 999px;
+  font-size: 0.95em;
+  font-weight: 600;
+  background: #eee;
+  color: #555;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+}
+
+.status.todo {
+  background: #f0f4ff;
+  color: #2a5bd7;
+}
+.status.inprogress {
+  background: #fffbe6;
+  color: #bfa100;
+}
+.status.completed {
+  background: #e6ffed;
+  color: #1a7f37;
+}
+.status.cancelled {
+  background: #ffeaea;
+  color: #d7263d;
+}
+
+.description {
+  color: #444;
+  font-size: 1.08rem;
+  margin: 0.5rem 0 0.2rem 0;
+  line-height: 1.6;
+}
+
+.meta {
+  display: flex;
+  gap: 2rem;
+  font-size: 0.98rem;
+  color: #666;
+}
+
+.dates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.92rem;
+  color: #888;
+}
