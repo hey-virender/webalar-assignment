@@ -221,7 +221,8 @@ const TaskCard = ({
       <p className={styles.description}>{description}</p>
       <div className={styles.meta}>
         <div>
-          <strong>Created By:</strong> {createdBy.name}
+          <strong>Created By:</strong>
+          <div>{createdBy?.name}</div>
         </div>
         <div>
           <strong>Assigned To:</strong>
