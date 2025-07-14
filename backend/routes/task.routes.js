@@ -7,6 +7,7 @@ import {
   deleteTask,
   assignTask,
   smartAssign,
+  updateTaskStatus,
   getTaskHistory,
   getUserActivity,
 } from "../controllers/task.controller.js";
@@ -23,6 +24,7 @@ router.delete("/:id", deleteTask);
 // Task assignment operations
 router.patch("/:id/assign", assignTask);
 router.patch("/:id/smart-assign", smartAssign);
+router.patch("/:id/status", updateTaskStatus);
 
 // Logging and history operations
 router.get("/:id/history", getTaskHistory);

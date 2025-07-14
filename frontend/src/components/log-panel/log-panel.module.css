@@ -5,14 +5,39 @@
   padding: 20px;
   max-height: 100vh;
   overflow-y: auto;
+  height: 100%;
 }
 
 .logPanel h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
   margin: 0 0 16px 0;
-  color: #333;
-  font-size: 1.5rem;
-  border-bottom: 2px solid #e1e5e9;
-  padding-bottom: 8px;
+  color: #2d3748;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.logPanel h2::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.logPanel:hover h2::after {
+  transform: scaleX(1);
 }
 
 .logContainer {
@@ -156,4 +181,77 @@
 
 .logEntry {
   animation: slideIn 0.3s ease-out;
+}
+
+/* Mobile overlay styling */
+@media (max-width: 768px) {
+  .logPanel {
+    border-radius: 0;
+    box-shadow: none;
+    padding: 16px;
+    max-height: none;
+    height: 100%;
+  }
+
+  .logPanel h2 {
+    display: none; /* Hidden in mobile overlay since we have header */
+  }
+
+  .logContainer {
+    gap: 10px;
+    padding-top: 0;
+  }
+
+  .logEntry {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .logHeader {
+    margin-bottom: 6px;
+  }
+
+  .logAction {
+    font-size: 0.9rem;
+    padding: 3px 6px;
+  }
+
+  .logTime {
+    font-size: 0.7rem;
+  }
+
+  .logUser {
+    font-size: 0.85rem;
+  }
+
+  .logDetails {
+    font-size: 0.8rem;
+  }
+
+  .logTask {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logPanel {
+    padding: 12px;
+  }
+
+  .logContainer {
+    gap: 8px;
+  }
+
+  .logEntry {
+    padding: 8px;
+  }
+
+  .logAction {
+    font-size: 0.85rem;
+    padding: 2px 5px;
+  }
+
+  .logTime {
+    font-size: 0.65rem;
+  }
 }

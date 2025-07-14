@@ -27,11 +27,11 @@ const taskLogSchema = new mongoose.Schema(
     },
     changes: {
       field: String,
-      oldValue: mongoose.Schema.Types.Mixed, 
-      newValue: mongoose.Schema.Types.Mixed, 
+      oldValue: mongoose.Schema.Types.Mixed,
+      newValue: mongoose.Schema.Types.Mixed,
     },
     details: {
-      type: String, 
+      type: String,
     },
     taskSnapshot: {
       title: String,
@@ -45,7 +45,6 @@ const taskLogSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
 
 taskLogSchema.index({ taskId: 1, createdAt: -1 });
 taskLogSchema.index({ performedBy: 1, createdAt: -1 });

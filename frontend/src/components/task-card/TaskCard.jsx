@@ -11,16 +11,46 @@ const TaskCard = ({
   assignedTo,
   createdAt,
   updatedAt,
-  updatedBy,
+  lastUpdatedBy,
   onDragStart,
   onDragEnd,
   onEdit,
   onDelete,
   onSmartAssign,
+  isDragging,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [isStatusUpdated, setIsStatusUpdated] = useState(false);
+  const [isEntering, setIsEntering] = useState(true);
+  const [prevStatus, setPrevStatus] = useState(status);
   const menuRef = useRef(null);
   const dropdownRef = useRef(null);
+
+  // Handle entrance animation on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setIsEntering(false), 400);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Handle status change animation
+  useEffect(() => {
+    if (prevStatus && prevStatus !== status) {
+      // Trigger flip animation on status change
+      setIsFlipping(true);
+      setIsStatusUpdated(true);
+
+      // Reset animations after completion
+      const flipTimer = setTimeout(() => setIsFlipping(false), 600);
+      const pulseTimer = setTimeout(() => setIsStatusUpdated(false), 500);
+
+      return () => {
+        clearTimeout(flipTimer);
+        clearTimeout(pulseTimer);
+      };
+    }
+    setPrevStatus(status);
+  }, [status, prevStatus]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -48,12 +78,16 @@ const TaskCard = ({
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Menu action handlers
+  // Menu action handlers with flip animation
   const handleEdit = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsMenuOpen(false);
-    if (onEdit) onEdit(_id);
+    setIsFlipping(true);
+    setTimeout(() => {
+      setIsFlipping(false);
+      if (onEdit) onEdit(_id);
+    }, 300);
   };
 
   const handleDelete = (e) => {
@@ -67,10 +101,27 @@ const TaskCard = ({
     e.preventDefault();
     e.stopPropagation();
     setIsMenuOpen(false);
-    if (onSmartAssign) onSmartAssign(_id);
+    setIsFlipping(true);
+    setTimeout(() => {
+      setIsFlipping(false);
+      if (onSmartAssign) onSmartAssign(_id);
+    }, 300);
   };
 
-  // Touch drag support for mobile
+  // Enhanced drag handlers
+  const handleDragStart = (e) => {
+    if (onDragStart) {
+      onDragStart(e, _id);
+    }
+  };
+
+  const handleDragEnd = (e) => {
+    if (onDragEnd) {
+      onDragEnd(e);
+    }
+  };
+
+  // Touch drag support for mobile with animation
   const handleTouchStart = (e) => {
     if (onDragStart)
       onDragStart(
@@ -83,25 +134,54 @@ const TaskCard = ({
           target: e.target,
           type: "touchstart",
         },
-        null,
+        _id,
       );
   };
+
   const handleTouchEnd = (e) => {
     if (onDragEnd) onDragEnd(e);
   };
+
+  // Build dynamic className for card
+  const getCardClassName = () => {
+    let className = styles.card;
+
+    if (isDragging) className += ` ${styles.dragging}`;
+    if (isFlipping) className += ` ${styles.flipping}`;
+    if (isStatusUpdated) className += ` ${styles.statusUpdated}`;
+    if (isEntering) className += ` ${styles.entering}`;
+
+    return className;
+  };
+
+  // Handle status badge shimmer effect
+  const handleStatusClick = () => {
+    const statusElement = document.querySelector(
+      `[data-task-id="${_id}"] .${styles.status}`,
+    );
+    if (statusElement) {
+      statusElement.classList.add(styles.shimmer);
+      setTimeout(() => {
+        statusElement.classList.remove(styles.shimmer);
+      }, 500);
+    }
+  };
+
   return (
     <div
-      className={styles.card}
+      className={getCardClassName()}
       draggable={true}
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      data-task-id={_id}
     >
       <div className={styles.header}>
         <h2 className={styles.title}>{title}</h2>
         <span
           className={styles.status + " " + styles[status?.toLowerCase()] || ""}
+          onClick={handleStatusClick}
         >
           {status}
         </span>
@@ -155,7 +235,7 @@ const TaskCard = ({
         {updatedAt && (
           <div>
             <strong>Updated:</strong> {new Date(updatedAt).toLocaleString()} by{" "}
-            {updatedBy}
+            {lastUpdatedBy?.name}
           </div>
         )}
       </div>

@@ -68,7 +68,7 @@ export const getTaskById = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
     const taskId = req.params.id;
-    const task = await Task.findById(taskId);
+    const task = await Task.findById(taskId).populate("assignedTo", "name");
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
@@ -86,15 +86,15 @@ export const assignTask = async (req, res) => {
     }
     const taskId = req.params.id;
     const { assignedTo } = req.body;
-    if (!assignedTo) {
-      return res.status(400).json({ message: "Assigned user is required" });
-    }
-    if (assignedTo) {
+
+    // Allow null/undefined for unassigning
+    if (assignedTo && assignedTo !== null) {
       const assignedUser = await User.findById(assignedTo);
       if (!assignedUser) {
         return res.status(400).json({ message: "Assigned user not found" });
       }
     }
+
     const task = await Task.findById(taskId).populate("assignedTo", "name");
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
@@ -105,23 +105,32 @@ export const assignTask = async (req, res) => {
 
     // Store old assignee for logging
     const oldAssignee = task.assignedTo ? task.assignedTo.name : null;
-    const newAssigneeUser = await User.findById(assignedTo);
+    let newAssigneeName = null;
 
-    task.assignedTo = assignedTo;
+    if (assignedTo && assignedTo !== null) {
+      const newAssigneeUser = await User.findById(assignedTo);
+      newAssigneeName = newAssigneeUser.name;
+    }
+
+    task.assignedTo = assignedTo || null;
     task.lastUpdatedBy = req.session.user.id;
     await task.save();
 
-    // Log task assignment
+    // Log task assignment/unassignment
     await TaskLogService.logTaskAssigned(
       task,
       oldAssignee,
-      newAssigneeUser.name,
+      newAssigneeName || "Unassigned",
       req.session.user.id,
     );
 
-    res.status(200).json({ message: "Task assigned successfully", task });
+    const message = assignedTo
+      ? "Task assigned successfully"
+      : "Task unassigned successfully";
+    res.status(200).json({ message, task });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -190,11 +199,9 @@ export const updateTask = async (req, res) => {
     const { title, description } = req.body;
 
     if (!title && !description) {
-      return res
-        .status(400)
-        .json({
-          message: "At least one field (title or description) is required",
-        });
+      return res.status(400).json({
+        message: "At least one field (title or description) is required",
+      });
     }
 
     const oldTask = await Task.findById(taskId);
@@ -278,6 +285,51 @@ export const getTaskHistory = async (req, res) => {
     const history = await TaskLogService.getTaskHistory(taskId, limit);
 
     res.status(200).json({ history });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const updateTaskStatus = async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const taskId = req.params.id;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    // Validate status
+    const validStatuses = ["todo", "inProgress", "completed"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const oldStatus = task.status;
+
+    task.status = status;
+    task.lastUpdatedBy = req.session.user.id;
+    await task.save();
+
+    // Log status change
+    await TaskLogService.logStatusChange(
+      task,
+      oldStatus,
+      status,
+      req.session.user.id,
+    );
+
+    res.status(200).json({ message: "Status updated successfully", task });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });

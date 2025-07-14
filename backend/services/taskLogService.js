@@ -1,4 +1,5 @@
 import TaskLog from "../models/TaskLog.js";
+import User from "../models/User.js";
 
 export class TaskLogService {
   /**
@@ -120,7 +121,21 @@ export class TaskLogService {
    */
   static async logTaskUpdated(task, changes, performedBy) {
     const changedFields = Object.keys(changes);
-    const details = `Updated fields: ${changedFields.join(", ")}`;
+    console.log("changes", changes);
+    console.log("changedFields", changedFields);
+    let details = `Updated fields: ${changedFields.join(", ")}`;
+  
+    if (changedFields.includes("assignedTo")) {
+      const oldAssigneeUser = await User.findById(task.assignedTo).select(
+        "name",
+      );
+      const newAssigneeUser = await User.findById(changes.assignedTo).select(
+        "name",
+      );
+      const oldAssignee = oldAssigneeUser ? oldAssigneeUser.name : "Unassigned";
+      const newAssignee = newAssigneeUser ? newAssigneeUser.name : "Unassigned";
+      details = `Task reassigned from ${oldAssignee} to ${newAssignee} `;
+    }
 
     return this.logAction({
       taskId: task._id,

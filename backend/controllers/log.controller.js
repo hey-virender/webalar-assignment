@@ -8,6 +8,10 @@ export const getLogs = async (req, res) => {
         path: "performedBy",
         select: "name",
       })
+      .populate({
+        path: "taskSnapshot.assignedTo",
+        select: "name",
+      })
       .limit(20);
     res.status(200).json(logs);
   } catch (error) {

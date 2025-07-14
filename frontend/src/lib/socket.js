@@ -1,15 +1,15 @@
-import { io} from "socket.io-client";
+import { io } from "socket.io-client";
 
 const URL = import.meta.env.VITE_SOCKET_URL;
 
 let socket = null;
 
-export const getSocket=()=>{
+export const getSocket = () => {
   if (!socket) {
     socket = io(URL, {
-      transports: ["websocket"], 
-      withCredentials: true,  
+      transports: ["websocket"],
+      withCredentials: true,
     });
   }
   return socket;
-}
+};

@@ -1,7 +1,6 @@
 import { Server } from "socket.io";
 import sharedSession from "express-socket.io-session";
-import Task from "./models/Task.js";
-import { TaskLogService } from "./services/taskLogService.js";
+import { TaskService } from "./services/taskService.js";
 
 export function setupSocket(server, sessionMiddleware) {
   const io = new Server(server, {
@@ -23,52 +22,66 @@ export function setupSocket(server, sessionMiddleware) {
 
     if (!user) {
       console.log("Unauthorized socket attempt");
+      socket.emit("unauthorized");
       return socket.disconnect();
     }
 
     console.log("User connected:", user.id);
 
-    // Handle events
-    socket.on("send-note", (data) => {
-      console.log(`User ${user.id} sent note:`, data);
-      // broadcast or save to DB
+    socket.on("createTask", async (data) => {
+      try {
+        const task = await TaskService.createTask(data, user.id);
+        io.emit("taskCreated", task);
+      } catch (error) {
+        console.error("Error creating task:", error);
+      }
+    });
+
+    socket.on("updateTask", async (data) => {
+      try {
+        const task = await TaskService.updateTask(
+          data.taskId,
+          data.updates,
+          user.id,
+        );
+        io.emit("taskUpdated", task);
+      } catch (error) {
+        console.error("Error updating task:", error);
+      }
+    });
+
+    socket.on("deleteTask", async (data) => {
+      try {
+        const task = await TaskService.deleteTask(data.taskId, user.id);
+        io.emit("taskDeleted", task);
+      } catch (error) {
+        console.error("Error deleting task:", error);
+      }
     });
 
     socket.on("updateTaskStatus", async (data) => {
-      console.log(data);
       try {
         // Get the task with old status first
-        const oldTask = await Task.findById(data.taskId);
-        if (!oldTask) {
-          console.error("Task not found:", data.taskId);
-          return;
-        }
-
-        const oldStatus = oldTask.status;
-
-        // Update the task
-        const task = await Task.findByIdAndUpdate(
+        const task = await TaskService.updateTaskStatus(
           data.taskId,
-          {
-            status: data.newStatus,
-            lastUpdatedBy: user.id,
-          },
-          { new: true }, // Return the updated document
+          data.newStatus,
+          user.id,
         );
 
         if (task) {
-          // Log the status change
-          await TaskLogService.logStatusChange(
-            task,
-            oldStatus,
-            data.newStatus,
-            user.id,
-          );
-
           io.emit("taskStatusUpdated", task);
         }
       } catch (error) {
         console.error("Error updating task status:", error);
+      }
+    });
+
+    socket.on("smartAssign", async (data) => {
+      try {
+        const task = await TaskService.smartAssign(data.taskId, user.id);
+        io.emit("taskAssigned", task);
+      } catch (error) {
+        console.error("Error smart assigning task:", error);
       }
     });
 

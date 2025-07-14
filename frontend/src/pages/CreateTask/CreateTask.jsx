@@ -6,8 +6,10 @@ import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/header/Header";
 import styles from "./create-task.module.css";
+import { useSocket } from "../../hooks/useSocket";
 
 const CreateTask = () => {
+  const socket = useSocket();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState({
@@ -28,14 +30,13 @@ const CreateTask = () => {
         }));
       }
       if (title && description) {
-        const response = await axiosInstance.post("/task", {
+        
+        socket.emit("createTask", {
           title,
           description,
+    
         });
-        if (response.status === 201) {
-          navigate("/");
-          console.log(response.data.message);
-        }
+        navigate("/");
       }
     } catch (error) {
       console.log(error);

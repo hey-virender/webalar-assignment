@@ -17,6 +17,8 @@ const TaskBoard = () => {
   );
   const [tasks, setTasks] = useState([]);
   const [draggedTaskId, setDraggedTaskId] = useState(null);
+  const [dragOverSection, setDragOverSection] = useState(null);
+  const [isDragActive, setIsDragActive] = useState(false);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -26,6 +28,7 @@ const TaskBoard = () => {
     };
     fetchTasks();
   }, []);
+
   useEffect(() => {
     const handleTaskStatusUpdated = (task) => {
       setTasks((prevTasks) =>
@@ -33,21 +36,57 @@ const TaskBoard = () => {
       );
     };
 
-    socket.on("taskStatusUpdated", handleTaskStatusUpdated);
+    const handleTaskDeleted = (task) => {
+      setTasks((prevTasks) => prevTasks.filter((t) => t._id !== task._id));
+      console.log("Task deleted successfully");
+    };
 
-    // Cleanup function to remove the listener
+    const handleTaskAssigned = (task) => {
+      console.log(task);
+      setTasks((prevTasks) =>
+        prevTasks.map((t) => (t._id === task._id ? task : t)),
+      );
+    };
+
+    socket.on("taskStatusUpdated", handleTaskStatusUpdated);
+    socket.on("taskDeleted", handleTaskDeleted);
+    socket.on("taskAssigned", handleTaskAssigned);
+
+    // Cleanup function to remove the listeners
     return () => {
       socket.off("taskStatusUpdated", handleTaskStatusUpdated);
+      socket.off("taskDeleted", handleTaskDeleted);
+      socket.off("taskAssigned", handleTaskAssigned);
     };
   }, [socket]);
+
   const handleDragStart = (e, taskId) => {
     setDraggedTaskId(taskId);
+    setIsDragActive(true);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", taskId);
+
+    // Add a slight delay to ensure the drag visual feedback shows
+    setTimeout(() => {
+      const draggedElement = document.querySelector(
+        `[data-task-id="${taskId}"]`,
+      );
+      if (draggedElement) {
+        draggedElement.style.opacity = "0.5";
+      }
+    }, 0);
   };
 
   const handleDragEnd = () => {
     setDraggedTaskId(null);
+    setDragOverSection(null);
+    setIsDragActive(false);
+
+    // Clean up any visual feedback
+    const allCards = document.querySelectorAll("[data-task-id]");
+    allCards.forEach((card) => {
+      card.style.opacity = "";
+    });
   };
 
   const handleDragOver = (e) => {
@@ -55,13 +94,39 @@ const TaskBoard = () => {
     e.dataTransfer.dropEffect = "move";
   };
 
+  const handleDragEnter = (e, status) => {
+    e.preventDefault();
+    setDragOverSection(status);
+  };
+
+  const handleDragLeave = (e) => {
+    // Only remove drag over state if we're leaving the section entirely
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setDragOverSection(null);
+    }
+  };
+
   const handleDrop = (e, newStatus) => {
     e.preventDefault();
     const taskId = e.dataTransfer.getData("text/plain");
     console.log("Drop - Task ID:", taskId, "New Status:", newStatus);
 
-    socket.emit("updateTaskStatus", { taskId, newStatus });
+    // Only update if status actually changes
+    const draggedTask = tasks.find((task) => task._id === taskId);
+    if (draggedTask && draggedTask.status !== newStatus) {
+      socket.emit("updateTaskStatus", { taskId, newStatus });
+
+      // Add visual feedback for successful drop
+      const section = e.currentTarget;
+      section.style.transform = "scale(1.02)";
+      setTimeout(() => {
+        section.style.transform = "";
+      }, 200);
+    }
+
     setDraggedTaskId(null);
+    setDragOverSection(null);
+    setIsDragActive(false);
   };
 
   // Task action handlers
@@ -73,11 +138,7 @@ const TaskBoard = () => {
   const handleDeleteTask = async (taskId) => {
     if (window.confirm("Are you sure you want to delete this task?")) {
       try {
-        await axiosInstance.delete(`/task/${taskId}`);
-        setTasks((prevTasks) =>
-          prevTasks.filter((task) => task._id !== taskId),
-        );
-        console.log("Task deleted successfully");
+        socket.emit("deleteTask", { taskId });
       } catch (error) {
         console.error("Error deleting task:", error);
         alert("Failed to delete task. Please try again.");
@@ -87,18 +148,12 @@ const TaskBoard = () => {
 
   const handleSmartAssign = async (taskId) => {
     try {
-      const response = await axiosInstance.patch(
-        `/task/${taskId}/smart-assign`,
-      );
-      console.log("Task smart-assigned:", response.data);
-      // Update the task in local state
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task._id === taskId
-            ? { ...task, assignedTo: response.data.assignedTo }
-            : task,
-        ),
-      );
+      socket.emit("smartAssign", { taskId });
+      socket.on("taskAssigned", (task) => {
+        setTasks((prevTasks) =>
+          prevTasks.map((t) => (t._id === task._id ? task : t)),
+        );
+      });
     } catch (error) {
       console.error("Error smart-assigning task:", error);
       alert("Failed to smart assign task. Please try again.");
@@ -111,24 +166,54 @@ const TaskBoard = () => {
     { key: "completed", label: "Completed" },
   ];
 
+  // Get section className with drag states
+  const getSectionClassName = (status) => {
+    let className = styles.taskBoardSection;
+
+    if (dragOverSection === status.key) {
+      className += ` ${styles.dragOver}`;
+    }
+
+    if (isDragActive) {
+      className += ` ${styles.dragActive}`;
+    }
+
+    return className;
+  };
+
+  // Get tasks className with drag states
+  const getTasksClassName = (status) => {
+    let className = styles.taskBoardSectionTasks;
+
+    if (dragOverSection === status.key) {
+      className += ` ${styles.dropZone}`;
+    }
+
+    return className;
+  };
+
   return (
     <section className={styles.taskBoardContainer}>
       <div className={styles.taskBoard}>
         {statuses.map((status) => (
           <div
             key={status.key}
-            className={styles.taskBoardSection}
+            className={getSectionClassName(status)}
+            data-status={status.key}
             onDragOver={handleDragOver}
+            onDragEnter={(e) => handleDragEnter(e, status.key)}
+            onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, status.key)}
           >
             <h2 className={styles.taskBoardSectionTitle}>{status.label}</h2>
-            <div className={styles.taskBoardSectionTasks}>
+            <div className={getTasksClassName(status)}>
               {tasks
                 .filter((task) => task.status === status.key)
                 .map((task) => (
                   <TaskCard
                     key={task._id}
                     {...task}
+                    isDragging={draggedTaskId === task._id}
                     onDragStart={(e) => handleDragStart(e, task._id)}
                     onDragEnd={handleDragEnd}
                     onEdit={handleEditTask}

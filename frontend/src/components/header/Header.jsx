@@ -10,7 +10,7 @@ const Header = () => {
     <nav className={styles.header}>
       <div>
         <Link to="/" className={styles.link}>
-          <h1>Task Management</h1>
+          <h1 className={styles.headerTitle}>Task Management</h1>
         </Link>
       </div>
       <div className={styles.avatarContainer}>
