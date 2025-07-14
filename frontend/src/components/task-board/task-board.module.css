@@ -1,0 +1,27 @@
+.taskBoardContainer {
+  padding: 20px;
+  
+}
+
+.taskBoardTitle {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.taskBoard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.taskBoardSection {
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  min-width: 33%;
+}
+
+.taskBoardSectionTitle {
+  font-size: 1.5rem;
+}

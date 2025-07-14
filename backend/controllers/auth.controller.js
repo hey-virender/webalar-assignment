@@ -52,3 +52,13 @@ export const login = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const logout = async (req, res) => {
+  try {
+    req.session.destroy();
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

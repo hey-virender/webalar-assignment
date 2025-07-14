@@ -1,0 +1,23 @@
+.createTaskContainer {
+  background-color: #f0f0f0;
+  height: 100vh;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.createTaskTitle {
+  color: #000;
+
+}
+
+.createTaskForm {
+  width: 50%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 40px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}

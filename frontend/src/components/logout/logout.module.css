@@ -1,0 +1,13 @@
+.logoutButton {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.logoutIcon {
+  width: 20px;
+  height: 20px;
+  color: #000;
+}

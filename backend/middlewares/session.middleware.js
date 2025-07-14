@@ -1,8 +1,7 @@
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
-import dotenv from 'dotenv';
-dotenv.config({path:".env.local"});
-
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
 
 const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET,
@@ -10,14 +9,14 @@ const sessionMiddleware = session({
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
-    collectionName: 'sessions',
-    
+    collectionName: "sessions",
   }),
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 1000 * 60 * 60 * 24, // 1 day
-  }
+    secure: false,
+    sameSite: "lax", // or "strict"
+    maxAge: 1000 * 60 * 60 * 24,
+  },
 });
 
 export default sessionMiddleware;

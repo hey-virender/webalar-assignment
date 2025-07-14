@@ -1,0 +1,9 @@
+.taskButtonContainer{
+  display: flex;
+  justify-content: flex-end;
+  padding: 20px;
+}
+
+.dashboardContainer{
+  display: flex;
+}

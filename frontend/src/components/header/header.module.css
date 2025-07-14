@@ -1,4 +1,4 @@
-.header{
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -6,25 +6,44 @@
   border-bottom: 1px solid #e0e0e0;
 }
 
-.avatarContainer{
+.avatarContainer {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
   gap: 10px;
   cursor: pointer;
 }
 
-.avatar{
-  width: 30px;
-  height: 30px;
+.avatar {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
   background-color: #f14f4f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
 }
 
-.logoutButton{
-  color:red;
+.logoutButton {
+  color: red;
   font-size: 1.5rem;
   cursor: pointer;
 }
 
+.link {
+  text-decoration: none;
+  color: #000;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.link:hover {
+  color: #000;
+}
+.link:visited {
+  color: #000;
+}

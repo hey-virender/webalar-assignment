@@ -1,0 +1,159 @@
+.logPanel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+.logPanel h2 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #e1e5e9;
+  padding-bottom: 8px;
+}
+
+.logContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.noLogs {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 40px 20px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px dashed #dee2e6;
+}
+
+.logEntry {
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  padding: 12px;
+  background: #fafbfc;
+  transition: all 0.2s ease;
+}
+
+.logEntry:hover {
+  background: #f1f3f5;
+  border-color: #d0d7de;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.logAction {
+  margin: 0;
+  font-size: 1rem;
+  color: #0969da;
+  text-transform: capitalize;
+  background: #ddf4ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.logAction[data-action="created"] {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.logAction[data-action="status_changed"] {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.logAction[data-action="assigned"] {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.logAction[data-action="smart_assigned"] {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.logAction[data-action="deleted"] {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.logTime {
+  font-size: 0.75rem;
+  color: #656d76;
+  font-weight: 400;
+}
+
+.logBody {
+  margin-left: 8px;
+}
+
+.logUser {
+  margin: 0 0 4px 0;
+  font-size: 0.9rem;
+  color: #24292f;
+}
+
+.logDetails {
+  margin: 0 0 4px 0;
+  font-size: 0.85rem;
+  color: #656d76;
+  line-height: 1.4;
+}
+
+.logTask {
+  margin: 4px 0 0 0;
+  font-size: 0.8rem;
+  color: #8b949e;
+}
+
+.logTask em {
+  color: #656d76;
+  font-weight: 500;
+}
+
+/* Scrollbar styling */
+.logPanel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.logPanel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.logPanel::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.logPanel::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Animation for new entries */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.logEntry {
+  animation: slideIn 0.3s ease-out;
+}
