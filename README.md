@@ -10,6 +10,8 @@ A sophisticated task management application with **real-time collaboration** and
 
 [Deployed Link](https://webalar-assignment-six.vercel.app) | [Video Link](https://drive.google.com/file/d/1icqEpDTUlfaxZQYPOso59sHwOWfWi_FM/view?usp=drive_link)
 
+**While checking deployed version there can be a slight delay in loading task, logs or signing in so please be patient. This is due to render auto shutdown feature due to long inactivity**
+
 ### Logic_Document.md is present in the repository
 
 ## ✨ Key Features
