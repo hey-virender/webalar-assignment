@@ -9,25 +9,27 @@ const LogPanel = () => {
 
   const fetchLogs = async () => {
     try {
-      const response = await axiosInstance.get("/task/activity/user");
-      console.log(response.data);
-      setLogs(response.data.activity || []);
+      const response = await axiosInstance.get("/logs");
+      setLogs(response.data);
     } catch (error) {
       console.error("Error fetching logs:", error);
     }
   };
 
+  //Intial fetch to show logs
+
   useEffect(() => {
-    // Initial fetch
+  
     fetchLogs();
   }, []);
 
+  //Listen to socket events to update logs
   useEffect(() => {
     if (!socket) return;
 
     
     const handleTaskUpdate = () => {
-      console.log("Task updated, refreshing logs...");
+     
       fetchLogs();
     };
 

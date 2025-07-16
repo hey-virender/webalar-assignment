@@ -11,6 +11,7 @@ const TaskCard = ({
   assignedTo,
   createdAt,
   updatedAt,
+  priority,
   lastUpdatedBy,
   onDragStart,
   onDragEnd,
@@ -228,12 +229,18 @@ const TaskCard = ({
           <strong>Assigned To:</strong>
           <div>{assignedTo ? assignedTo.name : "Unassigned"}</div>
         </div>
+        <div>
+          <strong>Priority:</strong>
+          <div className={styles.priority + " " + styles[priority?.toLowerCase()] || ""}>
+            {priority.toUpperCase()}
+          </div>
+        </div>
       </div>
       <div className={styles.dates}>
         <div>
           <strong>Created:</strong> {new Date(createdAt).toLocaleString()}
         </div>
-        {updatedAt && (
+        {updatedAt && updatedAt !== createdAt && (
           <div>
             <strong>Updated:</strong> {new Date(updatedAt).toLocaleString()} by{" "}
             {lastUpdatedBy?.name}

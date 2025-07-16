@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Input from "../../components/input/Input";
 import ProtectedRoutes from "../../components/ProtectedRoutes";
 import Button from "../../components/button/Button";
-import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/header/Header";
 import styles from "./create-task.module.css";
@@ -15,7 +14,7 @@ const CreateTask = () => {
   // Form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
+  const [priority, setPriority] = useState("");
   // UI state
   const [error, setError] = useState({
     title: "",
@@ -35,8 +34,8 @@ const CreateTask = () => {
     } else if (title.trim().length < 3) {
       newErrors.title = "Title must be at least 3 characters";
       hasErrors = true;
-    } else if (title.trim().length > 100) {
-      newErrors.title = "Title must be less than 100 characters";
+    } else if (title.trim().length > 20) {
+      newErrors.title = "Title must be less than 20 characters";
       hasErrors = true;
     }
 
@@ -46,8 +45,8 @@ const CreateTask = () => {
     } else if (description.trim().length < 10) {
       newErrors.description = "Description must be at least 10 characters";
       hasErrors = true;
-    } else if (description.trim().length > 500) {
-      newErrors.description = "Description must be less than 500 characters";
+    } else if (description.trim().length > 100) {
+      newErrors.description = "Description must be less than 100 characters";
       hasErrors = true;
     }
 
@@ -66,101 +65,35 @@ const CreateTask = () => {
       return;
     }
 
-    try {
-      setIsLoading(true);
+    setIsLoading(true);
 
-      if (socket?.connected) {
-        // Listen for task creation response
-        socket.off("taskCreated"); // Remove any existing listeners
-        socket.on("taskCreated", (response) => {
-          if (response.success) {
-            setSuccess(true);
-            // Clear form
-            setTitle("");
-            setDescription("");
+    if (socket?.connected) {
+      // Emit the create task event
+      socket.emit("createTask", {
+        title: title.trim(),
+        description: description.trim(),
+        priority: priority.trim(),
+      });
 
-            // Navigate back to dashboard after short delay
-            setTimeout(() => {
-              navigate("/");
-            }, 1500);
-          } else {
-            setError((prev) => ({
-              ...prev,
-              general: response.message || "Failed to create task",
-            }));
-          }
-          setIsLoading(false);
-        });
-
-        // Listen for errors
-        socket.on("taskError", (error) => {
-          setError((prev) => ({
-            ...prev,
-            general: error.message || "Failed to create task",
-          }));
-          setIsLoading(false);
-        });
-
-        // Emit the create task event
-        socket.emit("createTask", {
-          title: title.trim(),
-          description: description.trim(),
-        });
-      } else {
-        // Fallback to HTTP request if socket is not connected
-        const response = await axiosInstance.post("/task", {
-          title: title.trim(),
-          description: description.trim(),
-        });
-
-        if (response.status === 200 || response.status === 201) {
+      const handleTaskCreated = (data) => {
+        const { task, success, error } = data;
+        if (success && task) {
           setSuccess(true);
           setTitle("");
           setDescription("");
-
-          setTimeout(() => {
-            navigate("/");
-          }, 1500);
+          navigate("/");
+        } else {
+          setError({ general: error });
         }
         setIsLoading(false);
-      }
-    } catch (error) {
-      console.error("Create task error:", error);
+        // Clean up the listener
+        socket.off("taskCreated", handleTaskCreated);
+      };
 
-      if (error.response) {
-        const status = error.response.status;
-        const message = error.response.data?.message || "Failed to create task";
-
-        if (status === 400) {
-          setError((prev) => ({
-            ...prev,
-            general: message,
-          }));
-        } else if (status === 401) {
-          setError((prev) => ({
-            ...prev,
-            general: "You are not authorized to create tasks",
-          }));
-        } else {
-          setError((prev) => ({
-            ...prev,
-            general: "Failed to create task. Please try again.",
-          }));
-        }
-      } else if (error.request) {
-        setError((prev) => ({
-          ...prev,
-          general:
-            "Network error. Please check your internet connection and try again.",
-        }));
-      } else {
-        setError((prev) => ({
-          ...prev,
-          general: "An unexpected error occurred. Please try again.",
-        }));
-      }
-      setIsLoading(false);
+      socket.on("taskCreated", handleTaskCreated);
     }
+
+    setIsLoading(false);
   };
 
   const handleCancel = () => {
@@ -168,7 +101,7 @@ const CreateTask = () => {
   };
 
   // Clean up socket listeners on unmount
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (socket) {
         socket.off("taskCreated");
@@ -229,14 +162,32 @@ const CreateTask = () => {
                   disabled={isLoading || success}
                   required
                   rows={6}
-                  maxLength={500}
+                  maxLength={100}
                 />
                 <div className={styles.charCount}>
-                  {description.length}/500 characters
+                  {description.length}/100 characters
                 </div>
                 {error.description && (
                   <span className={styles.errorText}>{error.description}</span>
                 )}
+              </div>
+
+              <div className={styles.selectWrapper}>
+                <label htmlFor="priority" className={styles.selectLabel}>
+                  Priority
+                </label>
+                <select
+                  id="priority"
+                  name="priority"
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  className={styles.select}
+                  disabled={isLoading || success}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
               </div>
 
               <div className={styles.buttonGroup}>

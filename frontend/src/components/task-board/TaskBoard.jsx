@@ -23,40 +23,99 @@ const TaskBoard = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       const response = await axiosInstance.get("/task");
-      console.log(response.data.tasks);
       setTasks(response.data.tasks);
     };
     fetchTasks();
   }, []);
 
   useEffect(() => {
-    const handleTaskStatusUpdated = (task) => {
-      setTasks((prevTasks) =>
-        prevTasks.map((t) => (t._id === task._id ? task : t)),
-      );
+    const handleTaskStatusUpdated = (data) => {
+      const { task, success, error } = data;
+      if (success && task) {
+        setTasks((prevTasks) =>
+          prevTasks.map((t) => (t._id === task._id ? task : t)),
+        );
+      } else {
+        console.log("Task status update failed:", error);
+      }
     };
 
-    const handleTaskDeleted = (task) => {
-      setTasks((prevTasks) => prevTasks.filter((t) => t._id !== task._id));
-      console.log("Task deleted successfully");
+    const handleTaskDeleted = (data) => {
+      const { task, success, error } = data;
+      if (success && task) {
+        setTasks((prevTasks) => prevTasks.filter((t) => t._id !== task._id));
+       
+      } else {
+        console.log("Task deletion failed:", error);
+      }
     };
 
-    const handleTaskAssigned = (task) => {
-      console.log(task);
-      setTasks((prevTasks) =>
-        prevTasks.map((t) => (t._id === task._id ? task : t)),
-      );
+    const handleTaskAssigned = (data) => {
+      const { task, success, error } = data;
+      if (success && task) {
+        setTasks((prevTasks) =>
+          prevTasks.map((t) => (t._id === task._id ? task : t)),
+        );
+      } else {
+        console.log("Task assignment failed:", error);
+      }
+    };
+
+    // Handle task updates
+    const handleTaskUpdated = (data) => {
+      const { task, success, error } = data;
+     
+      if (success && task) {
+        setTasks((prevTasks) =>
+          prevTasks.map((t) => (t._id === task._id ? task : t)),
+        );
+      } else {
+        console.log("Task update failed:", error);
+      }
+    };
+
+    // Handle task creation
+    const handleTaskCreated = (data) => {
+      const { task, success, error } = data;
+     
+      if (success && task) {
+        setTasks((prevTasks) => [...prevTasks, task]);
+      } else {
+        console.log("Task creation failed:", error);
+      }
+    };
+
+    // Handle conflict resolution
+    const handleConflictResolved = (data) => {
+      const { task, success, resolvedBy, resolutionType } = data;
+     
+      if (success && task) {
+        setTasks((prevTasks) =>
+          prevTasks.map((t) => (t._id === task._id ? task : t)),
+        );
+
+      
+        console.log(
+          `Conflict resolved by user ${resolvedBy} using ${resolutionType}`,
+        );
+      }
     };
 
     socket.on("taskStatusUpdated", handleTaskStatusUpdated);
     socket.on("taskDeleted", handleTaskDeleted);
     socket.on("taskAssigned", handleTaskAssigned);
+    socket.on("taskUpdated", handleTaskUpdated);
+    socket.on("taskCreated", handleTaskCreated);
+    socket.on("conflictResolved", handleConflictResolved);
 
     // Cleanup function to remove the listeners
     return () => {
       socket.off("taskStatusUpdated", handleTaskStatusUpdated);
       socket.off("taskDeleted", handleTaskDeleted);
       socket.off("taskAssigned", handleTaskAssigned);
+      socket.off("taskUpdated", handleTaskUpdated);
+      socket.off("taskCreated", handleTaskCreated);
+      socket.off("conflictResolved", handleConflictResolved);
     };
   }, [socket]);
 
@@ -72,7 +131,7 @@ const TaskBoard = () => {
         `[data-task-id="${taskId}"]`,
       );
       if (draggedElement) {
-        draggedElement.style.opacity = "0.5";
+        draggedElement.style.opacity = "0.2";
       }
     }, 0);
   };
@@ -109,9 +168,9 @@ const TaskBoard = () => {
   const handleDrop = (e, newStatus) => {
     e.preventDefault();
     const taskId = e.dataTransfer.getData("text/plain");
-    console.log("Drop - Task ID:", taskId, "New Status:", newStatus);
 
-    // Only update if status actually changes
+
+//Only update if status actually changes
     const draggedTask = tasks.find((task) => task._id === taskId);
     if (draggedTask && draggedTask.status !== newStatus) {
       socket.emit("updateTaskStatus", { taskId, newStatus });
@@ -131,7 +190,7 @@ const TaskBoard = () => {
 
   // Task action handlers
   const handleEditTask = (taskId) => {
-    console.log("Edit task:", taskId);
+   
     navigate(`/update-task/${taskId}`);
   };
 
@@ -149,11 +208,6 @@ const TaskBoard = () => {
   const handleSmartAssign = async (taskId) => {
     try {
       socket.emit("smartAssign", { taskId });
-      socket.on("taskAssigned", (task) => {
-        setTasks((prevTasks) =>
-          prevTasks.map((t) => (t._id === task._id ? task : t)),
-        );
-      });
     } catch (error) {
       console.error("Error smart-assigning task:", error);
       alert("Failed to smart assign task. Please try again.");

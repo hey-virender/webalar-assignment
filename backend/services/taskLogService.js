@@ -2,16 +2,7 @@ import TaskLog from "../models/TaskLog.js";
 import User from "../models/User.js";
 
 export class TaskLogService {
-  /**
-   * Log a task action with detailed information
-   * @param {Object} params - Logging parameters
-   * @param {string} params.taskId - ID of the task
-   * @param {string} params.action - Type of action performed
-   * @param {string} params.performedBy - ID of user who performed the action
-   * @param {Object} params.changes - Changes made (optional)
-   * @param {string} params.details - Additional details (optional)
-   * @param {Object} params.taskSnapshot - Current state of task (optional)
-   */
+
   static async logAction({
     taskId,
     action,
@@ -117,7 +108,7 @@ export class TaskLogService {
   }
 
   /**
-   * Log task update (title, description, etc.)
+   * Log task update (with updates)
    */
   static async logTaskUpdated(task, changes, performedBy) {
     const changedFields = Object.keys(changes);

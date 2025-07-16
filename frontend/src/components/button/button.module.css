@@ -45,7 +45,7 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Primary variant (default) */
+/* Primary variant */
 .primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #ffffff;
@@ -166,7 +166,7 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .button {
-    min-height: 44px; /* Touch target minimum */
+    min-height: 44px; 
     font-size: 0.95rem;
   }
 
@@ -200,37 +200,7 @@
   }
 }
 
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .button {
-    border: 2px solid currentColor;
-  }
 
-  .primary {
-    background: #000;
-    color: #fff;
-  }
-
-  .secondary {
-    background: #fff;
-    color: #000;
-  }
-}
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  .button,
-  .button::before,
-  .spinner {
-    animation: none;
-    transition: none;
-  }
-
-  .button:hover,
-  .button:active {
-    transform: none;
-  }
-}
 
 /* Focus visible for keyboard navigation */
 .button:focus-visible {

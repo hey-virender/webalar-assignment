@@ -28,6 +28,8 @@ const Register = () => {
   const [isStoreReady, setIsStoreReady] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   // Wait for store hydration before checking authentication
   React.useEffect(() => {
     const checkStoreReady = () => {
@@ -41,7 +43,6 @@ const Register = () => {
     checkStoreReady();
   }, [isReady]);
 
-  // Redirect if already authenticated
   if (isStoreReady && isAuthenticated) {
     return <Navigate to="/" />;
   }
@@ -69,7 +70,7 @@ const Register = () => {
     if (!email.trim()) {
       newErrors.email = "Email is required";
       hasErrors = true;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    } else if (!EMAIL_REGEX.test(email.trim())) {
       newErrors.email = "Please enter a valid email address";
       hasErrors = true;
     }
@@ -131,13 +132,13 @@ const Register = () => {
         setPassword("");
         setConfirmPassword("");
 
-        // Show success message briefly then redirect
+        
         setTimeout(() => {
           navigate("/login");
         }, 2000);
       }
     } catch (error) {
-      console.error("Registration error:", error);
+      
 
       if (error.response) {
         const status = error.response.status;

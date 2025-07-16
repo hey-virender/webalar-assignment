@@ -2,7 +2,7 @@ import User from "../models/User.js";
 
 export const getUsers = async (req, res) => {
   try {
-    if (!req.session.user) {
+    if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 

@@ -1,34 +1,27 @@
 import express from "express";
+import { authenticateToken } from "../middlewares/auth.middleware.js";
 import {
   createTask,
   getTaskById,
   getTasks,
-  updateTask,
-  deleteTask,
-  assignTask,
   smartAssign,
-  updateTaskStatus,
-  getTaskHistory,
-  getUserActivity,
+
 } from "../controllers/task.controller.js";
 
 const router = express.Router();
 
-// Basic CRUD operations
+// Apply JWT middleware to all task routes
+router.use(authenticateToken);
+
+// Task CRUD operations 
 router.post("/", createTask);
+
+//These are actually used in the frontend
 router.get("/", getTasks);
 router.get("/:id", getTaskById);
-router.put("/:id", updateTask);
-router.delete("/:id", deleteTask);
+
 
 // Task assignment operations
-router.patch("/:id/assign", assignTask);
 router.patch("/:id/smart-assign", smartAssign);
-router.patch("/:id/status", updateTaskStatus);
-
-// Logging and history operations
-router.get("/:id/history", getTaskHistory);
-router.get("/activity/user", getUserActivity); // Current user activity
-router.get("/activity/user/:userId", getUserActivity); // Specific user activity
 
 export default router;

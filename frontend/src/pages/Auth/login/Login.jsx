@@ -14,17 +14,16 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState({ email: "", password: "", general: "" });
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isStoreReady, setIsStoreReady] = useState(false);
 
-  // Wait for store hydration before checking authentication
+ 
   useEffect(() => {
     const checkStoreReady = () => {
       if (isReady()) {
         setIsStoreReady(true);
       } else {
-        // Check again after a short delay if not ready
+      
         const timeout = setTimeout(checkStoreReady, 100);
         return () => clearTimeout(timeout);
       }
@@ -33,7 +32,7 @@ const Login = () => {
     checkStoreReady();
   }, [isReady]);
 
-  // Only redirect after store is hydrated and user is authenticated
+ 
   if (isStoreReady && isAuthenticated) {
     return <Navigate to="/" />;
   }
@@ -68,7 +67,7 @@ const Login = () => {
       if (response.status === 200) {
         const { user, token } = response.data;
 
-        // Attempt to login with better error handling
+       
         try {
           login(user, token);
 
@@ -77,7 +76,7 @@ const Login = () => {
             navigate("/");
           }, 100);
         } catch (storageError) {
-          console.error("Storage error during login:", storageError);
+          
           setError((prev) => ({
             ...prev,
             general:
@@ -91,7 +90,7 @@ const Login = () => {
         }
       }
     } catch (error) {
-      console.error("Login error:", error);
+      
 
       if (error.response) {
         // Server responded with error status
@@ -103,11 +102,6 @@ const Login = () => {
             ...prev,
             general: "Invalid email or password",
           }));
-        } else if (status === 429) {
-          setError((prev) => ({
-            ...prev,
-            general: "Too many login attempts. Please try again later.",
-          }));
         } else {
           setError((prev) => ({ ...prev, general: message }));
         }
@@ -115,8 +109,7 @@ const Login = () => {
         // Network error
         setError((prev) => ({
           ...prev,
-          general:
-            "Network error. Please check your internet connection and try again.",
+          general: error.message,
         }));
       } else {
         // Other error
@@ -145,7 +138,7 @@ const Login = () => {
 
   return (
     <div className={styles.authContainer}>
-      <div className={styles.authForm}>
+      <form className={styles.authForm} onSubmit={handleSubmit}>
         <h1 className={styles.authHeading}>Login</h1>
 
         {error.general && (
@@ -184,10 +177,10 @@ const Login = () => {
           disabled={isLoading}
         />
 
-        <Button onClick={handleSubmit} type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Login"}
         </Button>
-      </div>
+      </form>
 
       <div className={styles.authFooter}>
         <p>

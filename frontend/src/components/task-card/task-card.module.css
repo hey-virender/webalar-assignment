@@ -346,7 +346,7 @@
     padding: 0.8rem;
     margin: 0;
     min-height: 120px;
-    max-height: 160px;
+    max-height: 500px;
     width: 240px;
     min-width: 240px;
     max-width: 240px;
@@ -384,10 +384,11 @@
 
   .description {
     font-size: 0.75rem;
-    line-height: 1.3;
+    line-height: 1;
     margin: 0.2rem 0;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    padding: 0.2rem 0;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
   }
 
   .meta {
@@ -451,12 +452,12 @@
 
 @media (max-width: 480px) {
   .card {
-    padding: 0.7rem;
+    padding: 1.4rem;
     min-height: 110px;
-    max-height: 140px;
+    max-height: 200px;
     width: 200px;
     min-width: 200px;
-    max-width: 200px;
+    max-width: 340px;
     flex: 0 0 200px;
     gap: 0.5rem;
   }
@@ -559,4 +560,26 @@
     transform: scale(0.98);
     background: #f3f4f6;
   }
+}
+.priority {
+  text-align: center;
+  padding: 0.2em 0.5em;
+  border-radius: 999px;
+  font-size: 0.85em;
+  font-weight: 600;
+  background: #eee;
+  color: #555;
+  text-transform: capitalize;
+}
+.priority.low {
+  background: #e6ffed;
+  color: #1a7f37;
+}
+.priority.medium {
+  background: #fffbe6;
+  color: #bfa100;
+}
+.priority.high { 
+  background: #ffeaea;
+  color: #d7263d;
 }

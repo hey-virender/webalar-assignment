@@ -6,13 +6,13 @@ const ProtectedRoutes = ({ children }) => {
   const { isAuthenticated, isReady } = useAuthStore();
   const [isStoreReady, setIsStoreReady] = useState(false);
 
-  // Wait for store hydration before checking authentication
+  
   useEffect(() => {
     const checkStoreReady = () => {
       if (isReady()) {
         setIsStoreReady(true);
       } else {
-        // Check again after a short delay if not ready
+        
         const timeout = setTimeout(checkStoreReady, 100);
         return () => clearTimeout(timeout);
       }
@@ -39,7 +39,6 @@ const ProtectedRoutes = ({ children }) => {
     );
   }
 
-  // Only check authentication after store is hydrated
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }

@@ -1,6 +1,6 @@
-import { hash } from "bcrypt";
+import { hash, compare } from "bcrypt";
 import User from "../models/User.js";
-import { compare } from "bcrypt";
+import { generateToken } from "../utils/jwt.js";
 
 export const register = async (req, res) => {
   try {
@@ -21,6 +21,7 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
+  console.log(req.body);
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -35,18 +36,26 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid password" });
     }
 
-    req.session.user = {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-    };
+    // Generate JWT Token
+    const token = generateToken(user);
+
     const filteredUser = {
       id: user._id,
       name: user.name,
       email: user.email,
     };
 
-    res.status(200).json({ message: "Login successful", user: filteredUser });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      message: "Login successful",
+      user: filteredUser,
+      token,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -55,7 +64,7 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    req.session.destroy();
+    res.clearCookie("token");
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     console.log(error);
