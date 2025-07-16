@@ -7,6 +7,11 @@ A sophisticated task management application with **real-time collaboration** and
 ![React](https://img.shields.io/badge/react-v19+-blue.svg)
 ![License](https://img.shields.io/badge/license-ISC-green.svg)
 
+
+[Deployed Link](https://webalar-assignment-six.vercel.app) | [Video Link](https://drive.google.com/file/d/1icqEpDTUlfaxZQYPOso59sHwOWfWi_FM/view?usp=drive_link)
+
+### Logic_Document.md is present in the repository
+
 ## ✨ Key Features
 
 ### 🔄 **Real-time Collaboration**
