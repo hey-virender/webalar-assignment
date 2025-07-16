@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import styles from "./log-panel.module.css";
-import axiosInstance from "../../api/axiosInstance";
+import useAxios from "../../hooks/useAxios";
 import { useSocket } from "../../hooks/useSocket";
 
 const LogPanel = () => {
   const [logs, setLogs] = useState([]);
   const socket = useSocket();
+  const axios = useAxios();
 
   const fetchLogs = async () => {
     try {
-      const response = await axiosInstance.get("/logs");
+      const response = await axios.get("/logs");
       setLogs(response.data);
     } catch (error) {
       console.error("Error fetching logs:", error);
@@ -19,7 +20,6 @@ const LogPanel = () => {
   //Intial fetch to show logs
 
   useEffect(() => {
-  
     fetchLogs();
   }, []);
 
@@ -27,13 +27,10 @@ const LogPanel = () => {
   useEffect(() => {
     if (!socket) return;
 
-    
     const handleTaskUpdate = () => {
-     
       fetchLogs();
     };
 
-    
     socket.on("taskStatusUpdated", handleTaskUpdate);
     socket.on("taskCreated", handleTaskUpdate);
     socket.on("taskAssigned", handleTaskUpdate);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Input from "../../../components/input/Input";
-import axiosInstance from "../../../api/axiosInstance";
+import useAxios from "../../../hooks/useAxios";
 import Button from "../../../components/button/Button";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import styles from "../auth.module.css";
@@ -9,6 +9,7 @@ import useAuthStore from "../../../store/auth.store";
 const Register = () => {
   const { isAuthenticated, isReady } = useAuthStore();
   const navigate = useNavigate();
+  const axios = useAxios();
 
   // Form state
   const [name, setName] = useState("");
@@ -117,7 +118,7 @@ const Register = () => {
     try {
       setIsLoading(true);
 
-      const response = await axiosInstance.post("/auth/register", {
+      const response = await axios.post("/auth/register", {
         name: name.trim(),
         email: email.trim(),
         password,
@@ -132,14 +133,11 @@ const Register = () => {
         setPassword("");
         setConfirmPassword("");
 
-        
         setTimeout(() => {
           navigate("/login");
         }, 2000);
       }
     } catch (error) {
-      
-
       if (error.response) {
         const status = error.response.status;
         const message = error.response.data?.message || "Registration failed";

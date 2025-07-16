@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axiosInstance from "../../api/axiosInstance";
+import useAxios from "../../hooks/useAxios";
 import Input from "../../components/input/Input";
 import Button from "../../components/button/Button";
 import ProtectedRoutes from "../../components/ProtectedRoutes";
@@ -12,6 +12,7 @@ const UpdateTask = () => {
   const socket = useSocket();
   const { taskId } = useParams();
   const navigate = useNavigate();
+  const axios = useAxios();
 
   // Form state
   const [title, setTitle] = useState("");
@@ -71,8 +72,8 @@ const UpdateTask = () => {
 
         // Fetch task details and all users in parallel
         const [taskResponse, usersResponse] = await Promise.all([
-          axiosInstance.get(`/task/${taskId}`),
-          axiosInstance.get(`/user`),
+          axios.get(`/task/${taskId}`),
+          axios.get(`/user`),
         ]);
 
         const task = taskResponse.data.task;
@@ -381,7 +382,7 @@ const UpdateTask = () => {
         });
       } else {
         // Fallback to HTTP request
-        const response = await axiosInstance.put(`/task/${taskId}`, updates);
+        const response = await axios.put(`/task/${taskId}`, updates);
 
         if (response.status === 200) {
           setSuccess(true);

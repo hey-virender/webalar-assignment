@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import TaskCard from "../task-card/TaskCard";
 import styles from "./task-board.module.css";
 import { useSocket } from "../../hooks/useSocket";
-import axiosInstance from "../../api/axiosInstance";
+import useAxios from "../../hooks/useAxios";
 
 const TaskBoard = () => {
   const navigate = useNavigate();
+  const axios = useAxios();
   const socket = useSocket(
     () => {
       console.log("connected to socket");
@@ -22,7 +23,7 @@ const TaskBoard = () => {
 
   useEffect(() => {
     const fetchTasks = async () => {
-      const response = await axiosInstance.get("/task");
+      const response = await axios.get("/task");
       setTasks(response.data.tasks);
     };
     fetchTasks();
@@ -44,7 +45,6 @@ const TaskBoard = () => {
       const { task, success, error } = data;
       if (success && task) {
         setTasks((prevTasks) => prevTasks.filter((t) => t._id !== task._id));
-       
       } else {
         console.log("Task deletion failed:", error);
       }
@@ -64,7 +64,7 @@ const TaskBoard = () => {
     // Handle task updates
     const handleTaskUpdated = (data) => {
       const { task, success, error } = data;
-     
+
       if (success && task) {
         setTasks((prevTasks) =>
           prevTasks.map((t) => (t._id === task._id ? task : t)),
@@ -77,7 +77,7 @@ const TaskBoard = () => {
     // Handle task creation
     const handleTaskCreated = (data) => {
       const { task, success, error } = data;
-     
+
       if (success && task) {
         setTasks((prevTasks) => [...prevTasks, task]);
       } else {
@@ -88,13 +88,12 @@ const TaskBoard = () => {
     // Handle conflict resolution
     const handleConflictResolved = (data) => {
       const { task, success, resolvedBy, resolutionType } = data;
-     
+
       if (success && task) {
         setTasks((prevTasks) =>
           prevTasks.map((t) => (t._id === task._id ? task : t)),
         );
 
-      
         console.log(
           `Conflict resolved by user ${resolvedBy} using ${resolutionType}`,
         );
@@ -169,8 +168,7 @@ const TaskBoard = () => {
     e.preventDefault();
     const taskId = e.dataTransfer.getData("text/plain");
 
-
-//Only update if status actually changes
+    //Only update if status actually changes
     const draggedTask = tasks.find((task) => task._id === taskId);
     if (draggedTask && draggedTask.status !== newStatus) {
       socket.emit("updateTaskStatus", { taskId, newStatus });
@@ -190,7 +188,6 @@ const TaskBoard = () => {
 
   // Task action handlers
   const handleEditTask = (taskId) => {
-   
     navigate(`/update-task/${taskId}`);
   };
 

@@ -4,12 +4,13 @@ import { useState, useEffect } from "react";
 import Button from "../../../components/button/Button";
 import styles from "../auth.module.css";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import axiosInstance from "../../../api/axiosInstance";
+import useAxios from "../../../hooks/useAxios";
 import useAuthStore from "../../../store/auth.store";
 
 const Login = () => {
   const { login, isAuthenticated, isReady } = useAuthStore();
   const navigate = useNavigate();
+  const axios = useAxios();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,13 +18,11 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isStoreReady, setIsStoreReady] = useState(false);
 
- 
   useEffect(() => {
     const checkStoreReady = () => {
       if (isReady()) {
         setIsStoreReady(true);
       } else {
-      
         const timeout = setTimeout(checkStoreReady, 100);
         return () => clearTimeout(timeout);
       }
@@ -32,7 +31,6 @@ const Login = () => {
     checkStoreReady();
   }, [isReady]);
 
- 
   if (isStoreReady && isAuthenticated) {
     return <Navigate to="/" />;
   }
@@ -59,7 +57,7 @@ const Login = () => {
     try {
       setIsLoading(true);
 
-      const response = await axiosInstance.post("/auth/login", {
+      const response = await axios.post("/auth/login", {
         email: email.trim(),
         password,
       });
@@ -67,7 +65,6 @@ const Login = () => {
       if (response.status === 200) {
         const { user, token } = response.data;
 
-       
         try {
           login(user, token);
 
@@ -76,7 +73,6 @@ const Login = () => {
             navigate("/");
           }, 100);
         } catch (storageError) {
-          
           setError((prev) => ({
             ...prev,
             general:
@@ -90,8 +86,6 @@ const Login = () => {
         }
       }
     } catch (error) {
-      
-
       if (error.response) {
         // Server responded with error status
         const status = error.response.status;
