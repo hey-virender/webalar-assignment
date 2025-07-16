@@ -14,7 +14,7 @@ const CreateTask = () => {
   // Form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState("");
+  const [priority, setPriority] = useState("low");
   // UI state
   const [error, setError] = useState({
     title: "",

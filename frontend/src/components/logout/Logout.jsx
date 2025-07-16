@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { LogOut } from "lucide-react";
 import styles from "./logout.module.css";
 import useAxios from "../../hooks/useAxios";
@@ -8,8 +8,10 @@ const Logout = () => {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
   const axios = useAxios();
+  const [loading, setLoading] = useState(false);
   const handleLogout = async () => {
     try {
+      setLoading(true);
       const response = await axios.post("/auth/logout");
       if (response.status === 200) {
         logout();
@@ -17,10 +19,16 @@ const Logout = () => {
       }
     } catch (error) {
       alert(error.response.data.message);
+    } finally {
+      setLoading(false);
     }
   };
   return (
-    <button className={styles.logoutButton} onClick={handleLogout}>
+    <button
+      className={styles.logoutButton}
+      onClick={handleLogout}
+      disabled={loading}
+    >
       <LogOut className={styles.logoutIcon} />
     </button>
   );
