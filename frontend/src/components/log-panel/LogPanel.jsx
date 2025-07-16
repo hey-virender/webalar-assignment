@@ -5,7 +5,7 @@ import { useSocket } from "../../hooks/useSocket";
 
 const LogPanel = () => {
   const [logs, setLogs] = useState([]);
-  const socket = useSocket();
+  const { socket } = useSocket();
   const axios = useAxios();
 
   const fetchLogs = async () => {

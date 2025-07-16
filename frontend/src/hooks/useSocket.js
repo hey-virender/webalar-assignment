@@ -1,23 +1,22 @@
-
 import { useEffect, useRef } from "react";
-import { getSocket } from "../lib/socket";
-import useAuthStore  from "../store/auth.store";
+import { getSocket, disconnectSocket } from "../lib/socket";
+import useAuthStore from "../store/auth.store";
 import { useNavigate } from "react-router-dom";
 
 export const useSocket = (onConnect, onDisconnect) => {
   const socketRef = useRef(getSocket());
-  const {logout} = useAuthStore()
-  const navigate = useNavigate()
+  const { logout } = useAuthStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const socket = socketRef.current;
-
 
     if (!socket.connected) {
       socket.connect();
     }
 
     socket.on("unauthorized", () => {
+      disconnectSocket();
       logout();
       navigate("/login");
     });
@@ -31,5 +30,8 @@ export const useSocket = (onConnect, onDisconnect) => {
     };
   }, [onConnect, onDisconnect, logout, navigate]);
 
-  return socketRef.current;
+  return {
+    socket: socketRef.current,
+    disconnect: disconnectSocket,
+  };
 };

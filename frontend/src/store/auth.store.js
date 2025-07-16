@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { disconnectSocket } from "../lib/socket";
 
 // Custom storage implementation with mobile compatibility
 const createMobileCompatibleStorage = () => {
@@ -104,6 +105,9 @@ const useAuthStore = create(
 
       logout: () => {
         try {
+          // Disconnect socket before clearing auth state
+          disconnectSocket();
+
           set({
             isAuthenticated: false,
             user: null,

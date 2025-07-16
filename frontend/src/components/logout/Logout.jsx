@@ -14,6 +14,7 @@ const Logout = () => {
       setLoading(true);
       const response = await axios.post("/auth/logout");
       if (response.status === 200) {
+        // Socket will be disconnected automatically by auth store
         logout();
         navigate("/login");
       }

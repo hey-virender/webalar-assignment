@@ -9,7 +9,7 @@ import styles from "./update-task.module.css";
 import { useSocket } from "../../hooks/useSocket";
 
 const UpdateTask = () => {
-  const socket = useSocket();
+  const { socket } = useSocket();
   const { taskId } = useParams();
   const navigate = useNavigate();
   const axios = useAxios();

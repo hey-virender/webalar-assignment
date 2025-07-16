@@ -8,7 +8,7 @@ import styles from "./create-task.module.css";
 import { useSocket } from "../../hooks/useSocket";
 
 const CreateTask = () => {
-  const socket = useSocket();
+  const { socket } = useSocket();
   const navigate = useNavigate();
 
   // Form state

@@ -23,7 +23,7 @@ const useAxios = () => {
     },
     (error) => {
       if (error.response?.status === 401) {
-        // Token expired or invalid, logout user
+        // Token expired or invalid, logout user (socket will be disconnected automatically)
         logout();
         // Optionally redirect to login page
         window.location.href = "/login";

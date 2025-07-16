@@ -8,7 +8,7 @@ import useAxios from "../../hooks/useAxios";
 const TaskBoard = () => {
   const navigate = useNavigate();
   const axios = useAxios();
-  const socket = useSocket(
+  const { socket } = useSocket(
     () => {
       console.log("connected to socket");
     },
