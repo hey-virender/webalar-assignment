@@ -45,16 +45,23 @@ export const login = async (req, res) => {
       email: user.email,
     };
 
-    res.cookie("token", token, {
+    // Prepare cookie options
+    const cookieOptions = {
       httpOnly: true,
       secure:
         process.env.NODE_ENV === "production" ||
         process.env.COOKIE_SECURE === "true",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      domain: process.env.FRONTEND_URL || undefined,
       path: "/",
       maxAge: 24 * 60 * 60 * 1000,
-    });
+    };
+
+    // Only add domain if it's set
+    if (process.env.COOKIE_DOMAIN) {
+      cookieOptions.domain = process.env.COOKIE_DOMAIN;
+    }
+
+    res.cookie("token", token, cookieOptions);
 
     res.status(200).json({
       message: "Login successful",
@@ -69,15 +76,22 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    res.clearCookie("token", {
+    // Prepare cookie options for clearing
+    const cookieOptions = {
       httpOnly: true,
       secure:
         process.env.NODE_ENV === "production" ||
         process.env.COOKIE_SECURE === "true",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      domain: process.env.FRONTEND_URL || undefined,
       path: "/",
-    });
+    };
+
+    // Only add domain if it's set
+    if (process.env.COOKIE_DOMAIN) {
+      cookieOptions.domain = process.env.COOKIE_DOMAIN;
+    }
+
+    res.clearCookie("token", cookieOptions);
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     console.log(error);
